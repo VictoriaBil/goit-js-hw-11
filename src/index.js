@@ -1,6 +1,6 @@
-// import axios from 'axios';
 import { fetchImages } from './fetch';
 import { renderGallery, cleanGallery } from './renderGallery';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
