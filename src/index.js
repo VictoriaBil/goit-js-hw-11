@@ -15,7 +15,7 @@ function onSearch(e) {
   // let page = 1;
   // const perPage = 40;
 
-  query = e.currentTarget.searchQuery.value.trim();
+  const query = e.currentTarget.searchQuery.value.trim();
 
   fetchImages(query)
     .then(renderGallery)
