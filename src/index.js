@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { fetchImages } from './fetch';
+// import { fetchImages } from './fetch';
 import { renderGallery, cleanGallery } from './renderGallery';
 
 const form = document.querySelector('#search-form');
@@ -18,5 +18,12 @@ function onSearch(e) {
   query = e.currentTarget.searchQuery.value.trim();
 
   fetchImages(query, page, perPage);
-  renderGallery(data);
+  renderGallery();
+}
+
+async function fetchImages(query, page, perPage) {
+  const response = await axios.get(
+    `?key=${KEY}&q=${query}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${perPage}`
+  );
+  return response;
 }
