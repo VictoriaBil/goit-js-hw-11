@@ -1,4 +1,4 @@
-export { renderGallery, cleanGallery };
+// export { renderGallery, cleanGallery };
 
 // function renderGallery(data) {
 //   const markupGallery = data
