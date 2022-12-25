@@ -5,21 +5,41 @@ import SimpleLightbox from 'simplelightbox';
 
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more');
 
 form.addEventListener('submit', onSearch);
+loadMoreBtn.addEventListener('click', onLoadMoreBtn);
+
+let query = '';
+let page = 1;
+const perPage = 40;
 
 function onSearch(e) {
   e.preventDefault();
   cleanGallery();
-  // let query = '';
-  // let page = 1;
-  // const perPage = 40;
 
   const query = e.currentTarget.searchQuery.value.trim();
 
   fetchImages(query)
     .then(renderGallery)
     .catch(err => console.log(err));
+}
+
+function onLoadMoreBtn() {
+  page += 1;
+
+  fetchImages()
+    .then(({ data }) => {
+      renderGallery(data.hits);
+
+      const totalPages = Math.ceil(data.totalHits / perPage);
+
+      if (page > totalPages) {
+        loadMoreBtn.classList.add('is-hidden');
+        alertEndOfSearch();
+      }
+    })
+    .catch(error => console.log(error));
 }
 
 function renderGallery({ data }) {
@@ -60,6 +80,8 @@ function renderGallery({ data }) {
 function cleanGallery() {
   gallery.innerHTML = '';
 }
+
+// function increasePage() {}
 
 // function alertNoEmptySearch() {
 //   Notify.failure(
