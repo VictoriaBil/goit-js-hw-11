@@ -5,6 +5,7 @@ import SimpleLightbox from 'simplelightbox';
 
 const form = document.querySelector('#search-form');
 const loadMoreBtn = document.querySelector('.load-more');
+loadMoreBtn.classList.add('is-hidden');
 
 form.addEventListener('submit', onSearch);
 loadMoreBtn.addEventListener('click', onLoadMoreBtn);
