@@ -23,36 +23,24 @@ function onSearch(e) {
   fetchImages(query, page, perPage)
     .then(renderGallery)
     .catch(err => console.log(err));
-
-  fetchImages(query, page, perPage)
-    .then(({ data }) => {
-      if (data.totalHits === 0) {
-        alertNoImagesFound();
-      } else {
-        renderGallery(data.hits);
-        alertImagesFound(data);
-
-        if (data.totalHits > perPage) {
-          loadMoreBtn.classList.remove('is-hidden');
-        }
-      }
-    })
-    .catch(error => console.log(error));
 }
 
 function onLoadMoreBtn() {
   page += 1;
 
   fetchImages(query, page, perPage)
-    .then(renderGallery)
-    .catch(err => console.log(err));
+    .then(({ data }) => {
+      renderGallery(data.hits);
+      simpleLightBox = new SimpleLightbox('.gallery a').refresh();
 
-  const totalPages = Math.ceil(data.totalHits / perPage);
+      const totalPages = Math.ceil(data.totalHits / perPage);
 
-  if (page > totalPages) {
-    loadMoreBtn.classList.add('is-hidden');
-    alertEndOfSearch();
-  }
+      if (page > totalPages) {
+        loadMoreBtn.classList.add('is-hidden');
+        alertEndOfSearch();
+      }
+    })
+    .catch(error => console.log(error));
 }
 
 function renderGallery({ data }) {
