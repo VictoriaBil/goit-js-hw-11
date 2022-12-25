@@ -28,7 +28,7 @@ function onSearch(e) {
 function onLoadMoreBtn() {
   page += 1;
 
-  fetchImages()
+  fetchImages(query, page, perPage)
     .then(({ data }) => {
       renderGallery(data.hits);
 
