@@ -20,26 +20,39 @@ function onSearch(e) {
 
   const query = e.currentTarget.searchQuery.value.trim();
 
-  fetchImages(query)
+  fetchImages(query, page, perPage)
     .then(renderGallery)
     .catch(err => console.log(err));
+
+  fetchImages(query, page, perPage)
+    .then(({ data }) => {
+      if (data.totalHits === 0) {
+        alertNoImagesFound();
+      } else {
+        renderGallery(data.hits);
+        alertImagesFound(data);
+
+        if (data.totalHits > perPage) {
+          loadMoreBtn.classList.remove('is-hidden');
+        }
+      }
+    })
+    .catch(error => console.log(error));
 }
 
 function onLoadMoreBtn() {
   page += 1;
 
   fetchImages(query, page, perPage)
-    .then(({ data }) => {
-      renderGallery(data.hits);
+    .then(renderGallery)
+    .catch(err => console.log(err));
 
-      const totalPages = Math.ceil(data.totalHits / perPage);
+  const totalPages = Math.ceil(data.totalHits / perPage);
 
-      if (page > totalPages) {
-        loadMoreBtn.classList.add('is-hidden');
-        alertEndOfSearch();
-      }
-    })
-    .catch(error => console.log(error));
+  if (page > totalPages) {
+    loadMoreBtn.classList.add('is-hidden');
+    alertEndOfSearch();
+  }
 }
 
 function renderGallery({ data }) {
@@ -81,20 +94,18 @@ function cleanGallery() {
   gallery.innerHTML = '';
 }
 
-// function increasePage() {}
+function alertNoEmptySearch() {
+  Notify.failure(
+    'The search string cannot be empty. Please specify your search query.'
+  );
+}
 
-// function alertNoEmptySearch() {
-//   Notify.failure(
-//     'The search string cannot be empty. Please specify your search query.'
-//   );
-// }
+function alertNoImagesFound() {
+  Notify.failure(
+    'Sorry, there are no images matching your search query. Please try again.'
+  );
+}
 
-// function alertNoImagesFound() {
-//   Notify.failure(
-//     'Sorry, there are no images matching your search query. Please try again.'
-//   );
-// }
-
-// function alertEndOfSearch() {
-//   Notify.failure("We're sorry, but you've reached the end of search results.");
-// }
+function alertEndOfSearch() {
+  Notify.failure("We're sorry, but you've reached the end of search results.");
+}
