@@ -1,10 +1,9 @@
 import { fetchImages } from './fetch';
-// import { renderGallery, cleanGallery } from './renderGallery';
+import { renderGallery, cleanGallery } from './renderGallery';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 
 const form = document.querySelector('#search-form');
-const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 
 form.addEventListener('submit', onSearch);
@@ -14,72 +13,42 @@ let query = '';
 let page = 1;
 const perPage = 40;
 
-function onSearch(e) {
+async function onSearch(e) {
   e.preventDefault();
   cleanGallery();
 
   const query = e.currentTarget.searchQuery.value.trim();
 
-  fetchImages(query, page, perPage)
-    .then(renderGallery)
-    .catch(err => console.log(err));
+  if (query === '') {
+    alertNoEmptySearch();
+    return;
+  }
+
+  const data = await fetchImages(query, page, perPage);
+  fetchImages(data);
+  renderGallery(data);
+
+  if (data.totalHits === 0) {
+    alertNoImagesFound();
+  }
+
+  if (data.totalHits > perPage) {
+    loadMoreBtn.classList.remove('is-hidden');
+  }
 }
 
-function onLoadMoreBtn() {
+async function onLoadMoreBtn() {
   page += 1;
+  const data = await fetchImages(query, page, perPage);
+  fetchImages(data);
+  renderGallery(data);
 
-  fetchImages(query, page, perPage)
-    .then(({ data }) => {
-      renderGallery(data.hits);
-      simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+  const totalPages = Math.ceil(data.totalHits / perPage);
 
-      const totalPages = Math.ceil(data.totalHits / perPage);
-
-      if (page > totalPages) {
-        loadMoreBtn.classList.add('is-hidden');
-        alertEndOfSearch();
-      }
-    })
-    .catch(error => console.log(error));
-}
-
-function renderGallery({ data }) {
-  const markupGallery = data.hits
-    .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) =>
-        `<a class="gallery__link" href="${largeImageURL}">
-            <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" />
-            <div class="gallery__info">
-              <p class="gallery__info--item">
-                <b>Likes</b>${likes}
-              </p>
-              <p class="gallery__info--item">
-                <b>Views</b>${views}
-              </p>
-              <p class="gallery__info--item">
-                <b>Comments</b>${comments}
-              </p>
-              <p class="gallery__info--item">
-                <b>Downloads</b>${downloads}
-              </p>
-            </div>
-          </a>`
-    )
-    .join('');
-
-  gallery.insertAdjacentHTML('beforeend', markupGallery);
-}
-
-function cleanGallery() {
-  gallery.innerHTML = '';
+  if (page > totalPages) {
+    loadMoreBtn.classList.add('is-hidden');
+    alertEndOfSearch();
+  }
 }
 
 function alertNoEmptySearch() {
